@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on 2014-1-2
-
+@summary:
 @author: Zero
+@date: 2023年8月1日
 """
 from pathlib import Path
 
@@ -11,7 +11,7 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QDialog, QTabWidget
 
 import settings
-from backup.control.backup_wgt import BackupWidget
+from backup.common.config import ConfigUtil
 from backup.view.main_dlg import Ui_Maindlg
 
 
@@ -20,14 +20,15 @@ class MainDialog(QDialog, Ui_Maindlg):
         QDialog.__init__(self, parent)
         Ui_Maindlg.__init__(self)
         self.setupUi(self)
-        self.create_ui()
 
         self.tab_widget = None
         self.tray_icon = None
-        # self.window().create_tray_icon()
+        self.config_util = ConfigUtil()
+        self.create_ui()
 
     def create_ui(self):
         self.resize(settings.FRAME_WIDTH, settings.FRAME_HEIGHT)
+
         self.setMaximumSize(QtCore.QSize(settings.FRAME_WIDTH, settings.FRAME_HEIGHT))
         self.setWindowFlags(QtCore.Qt.WindowType.Window)
         self.setWindowIcon(QtGui.QIcon(Path(settings.RESOURCE_PATH).joinpath("tray.png").as_posix()))
@@ -45,6 +46,7 @@ class MainDialog(QDialog, Ui_Maindlg):
         """
         @summary:
         """
+        from backup.control.backup_wgt import BackupWidget
         tab_normal = BackupWidget(self)
         tab_normal.setObjectName("tab_backup")
         icon = QtGui.QIcon(Path(settings.RESOURCE_PATH).joinpath("ssh.png").as_posix())
@@ -81,7 +83,7 @@ class MainDialog(QDialog, Ui_Maindlg):
         self.tray_icon.show()
         icon = QtWidgets.QSystemTrayIcon.MessageIcon(QtWidgets.QSystemTrayIcon.MessageIcon.Information)
         self.tray_icon.showMessage(
-            "备份助手提示",  # 标题
+            '备份助手提示',  # 标题
             '工具将继续在系统托盘中运行，\n要退出本工具，\n请在系统托盘的右键菜单中选择"退出"',  # 信息
             icon,  # 图标
             1 * 1000)  # 信息显示持续时间
@@ -92,8 +94,7 @@ class MainDialog(QDialog, Ui_Maindlg):
         self.showNormal()
 
     def on_tray_icon_clicked(self):
-        QtWidgets.QMessageBox.information(
-            self, '系统托盘', '提示：右键点击主界面恢复')
+        QtWidgets.QMessageBox.information(self, '提示', '单击恢复显示主界面')
 
     def on_icon_activated(self, reason):
         """

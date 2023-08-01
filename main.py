@@ -1,8 +1,8 @@
 # -*- coding: utf8 -*-
-u"""
+"""
 @summary:
 @author: Zero
-@date: 2016年2月18日
+@date: 2023年8月1日
 """
 
 import cgitb
