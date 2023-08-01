@@ -20,11 +20,16 @@ class BackupUtil:
 
         try:
             if os.path.isfile(source_path):
-                shutil.copyfile(source_path, target_path)
+                print('backup file')
+                shutil.copy(source_path, target_path)
+                print('backup file success')
+
             elif os.path.isdir(target_path):
+                print('backup folder')
                 shutil.copytree(source_path, target_path,
                                 ignore=shutil.ignore_patterns(*filters),
                                 dirs_exist_ok=True)
+                print('backup folder success')
             else:
                 raise PathError("需要备份的源或目标目录错误，无法将文件夹备份至文件中")
         except IOError as _err:

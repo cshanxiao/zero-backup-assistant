@@ -4,9 +4,14 @@
 @author: Zero
 @date: 2023年8月1日
 """
+import os
+import threading
+
 from PyQt6.QtCore import QStandardPaths
 from PyQt6.QtWidgets import QWidget
 
+from backup.common.backup import BackupUtil
+from backup.common.util import is_subdirectory
 from backup.core.custom_file_dialog import get_file_or_dir
 from backup.view.path_wgt import Ui_PathWidget
 
@@ -29,6 +34,23 @@ class PathWidget(QWidget, Ui_PathWidget):
         self.pushButton_remove.clicked.connect(self.on_remove_path)
         self.textEdit_filter.textChanged.connect(self.on_text_changed)
 
+    def get_backup_filter(self):
+        """
+        获取过滤器及去重
+        :return:
+        """
+        backup_filter = self.textEdit_filter.toPlainText().strip()
+        if backup_filter:
+            backup_filter = [item.strip() for item in backup_filter.split('\n') if item.strip()]
+
+        backup_filter = list(set(backup_filter))
+        if not backup_filter:
+            self.textEdit_filter.setPlainText('')
+            return []
+
+        self.textEdit_filter.setPlainText("\n".join(backup_filter))
+        return backup_filter
+
     def on_choose_path(self):
         # 打开文件对话框
         # 尝试获取我的文档目录
@@ -40,28 +62,41 @@ class PathWidget(QWidget, Ui_PathWidget):
             return
         data_path = data_path[0].strip()
 
-        backup_filter = self.textEdit_filter.toPlainText().strip()
-        if backup_filter:
-            backup_filter = [item.strip() for item in backup_filter.split('\n') if item]
-
+        backup_filter = self.get_backup_filter()
         sender = self.sender()
         if sender == self.pushButton_choose_source:
             # 选择源
             self.lineEdit_source_path.setText(data_path)
             target_path = self.lineEdit_target_path.text().strip()
+            if target_path and is_subdirectory(data_path, target_path):
+                # 重置目标路径
+                target_path = ''
+                self.lineEdit_target_path.setText(target_path)
+                return
+
             self.window().config_util.update_path(data_path, target_path, backup_filter=backup_filter)
         elif sender == self.pushButton_choose_target:
             # 选择目标
             self.lineEdit_target_path.setText(data_path)
             source_path = self.lineEdit_source_path.text().strip()
-            if source_path:
-                self.window().config_util.update_path(source_path, data_path, backup_filter=backup_filter)
+            if source_path and is_subdirectory(source_path, data_path):
+                # 重置目标路径
+                data_path = ''
+                self.lineEdit_target_path.setText(data_path)
+                return
+
+            if not source_path:
+                return
+            self.window().config_util.update_path(source_path, data_path, backup_filter=backup_filter)
 
     def on_text_changed(self):
-        backup_filter = self.textEdit_filter.toPlainText().strip()
+        backup_filter = self.textEdit_filter.toPlainText()
         if not backup_filter:
             return
-        backup_filter = [item.strip() for item in backup_filter.split('\n') if item]
+
+        backup_filter = [item.strip() for item in backup_filter.split('\n') if item.strip()]
+        backup_filter = list(set(backup_filter))
+
         source_path = self.lineEdit_source_path.text().strip()
         target_path = self.lineEdit_target_path.text().strip()
         if source_path and self.textEdit_filter.isEnabled():
@@ -86,4 +121,26 @@ class PathWidget(QWidget, Ui_PathWidget):
         3、开始备份，过滤指定目录及文件；
         :return:
         """
-        pass
+        source_path = self.lineEdit_source_path.text().strip()
+        target_path = self.lineEdit_target_path.text().strip()
+        if not source_path or not target_path:
+            return
+
+        source_path = os.path.abspath(source_path)
+        target_path = os.path.abspath(target_path)
+
+        if is_subdirectory(source_path, target_path):
+            return
+
+        if not os.path.exists(source_path):
+            return
+
+        # 获取过滤器
+        backup_filter = self.get_backup_filter()
+        backup_filter.extend(self.window().config_util.config['global_filters'])
+        backup_filter = list(set(backup_filter))
+
+        # 启动线程备份文件，稍后解决多次启动备份线程的问题
+        threading.Thread(target=BackupUtil.backup,
+                         args=(source_path, target_path, backup_filter)
+                         ).start()
