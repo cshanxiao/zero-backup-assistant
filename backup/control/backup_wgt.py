@@ -4,8 +4,9 @@ u"""
 @author: Zero
 @date: 2016年2月18日
 """
-
-from PyQt6.QtWidgets import QDialog
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QDialog, QMessageBox, QSystemTrayIcon, QMenu, QApplication, QGroupBox, QLabel, QComboBox, \
+    QStyle, QSpinBox, QPushButton, QTextEdit, QGridLayout, QLineEdit
 
 from backup.control.path_wgt import PathWidget
 from backup.view.backup_wgt import Ui_BackupWidget
@@ -28,4 +29,6 @@ class BackupWidget(QDialog, Ui_BackupWidget):
 
     def realtime_backup(self):
         # 实时备份
-        pass
+        # 让托盘图标显示在系统托盘上
+        self.window().hide()
+        self.window().tray_icon.show()
