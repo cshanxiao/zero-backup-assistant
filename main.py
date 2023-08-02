@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import QApplication
 
 import settings
 from backup.control.main_dlg import MainDialog
+from backup.common.logger import logger
 
 # 开发过程中捕捉全部异常
 cgitb.enable(format='text')
@@ -34,8 +35,9 @@ def main():
         dlg = MainDialog()
         dlg.show()
         app.exec()
-    except:
+    except Exception as err:
         traceback.print_exc()
+        logger.error(f"app excepted, err: {err}")
 
 
 if __name__ == '__main__':

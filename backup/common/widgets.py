@@ -1,16 +1,14 @@
-from PyQt6 import QtCore
-from PyQt6.QtWidgets import (
-    QMessageBox
-)
+from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QMessageBox
 
 
 class CommonMessageBox:
 
     @staticmethod
-    def show_message(parent=None, title="提示", text="提示信息", timeout=1500,
+    def show_message(parent=None, title="提示", text="提示信息", timeout=3000,
                      icon=None, button=None):
         """
-
+        可以延时关闭的提示窗口
         :param parent: 父窗体，QWidget 对象
         :param title: 提示窗标题
         :param text: 提示内容
@@ -20,11 +18,17 @@ class CommonMessageBox:
         :return:
         """
         icon = icon or QMessageBox.Icon.Information
-        button = button or QMessageBox.StandardButton.NoButton
+        button = button or QMessageBox.StandardButton.Ok
         msg_box = QMessageBox(parent)
         msg_box.setIcon(icon)
         msg_box.setWindowTitle(title)
         msg_box.setText(text)
         msg_box.setStandardButtons(button)
-        QtCore.QTimer.singleShot(timeout, msg_box.close)
+
+        # 设置定时器，延时关闭
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(msg_box.close)
+        timer.start(timeout)
+
         msg_box.exec()

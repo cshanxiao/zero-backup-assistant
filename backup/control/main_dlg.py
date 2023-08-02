@@ -39,10 +39,9 @@ class MainDialog(QDialog, Ui_Maindlg):
         self.tab_widget.setGeometry(QtCore.QRect(0, 0, settings.FRAME_WIDTH, settings.FRAME_HEIGHT))
         self.tab_widget.setTabPosition(QTabWidget.TabPosition.North)
         self.tab_widget.setIconSize(QtCore.QSize(32, 32))
-        self.show_tabs()
-        self.tab_widget.setCurrentIndex(0)
+        self.add_tabs()
 
-    def show_tabs(self):
+    def add_tabs(self):
         """
         @summary:
         """
@@ -51,6 +50,7 @@ class MainDialog(QDialog, Ui_Maindlg):
         tab_normal.setObjectName("tab_backup")
         icon = QtGui.QIcon(Path(settings.RESOURCE_PATH).joinpath("ssh.png").as_posix())
         self.tab_widget.addTab(tab_normal, icon, "数据备份")
+        self.tab_widget.setCurrentIndex(0)
 
     def create_tray_icon(self):
         # 创建托盘图标
@@ -73,18 +73,19 @@ class MainDialog(QDialog, Ui_Maindlg):
         :param event: 窗口关闭事件
         :return:
         """
-        event.ignore()
         self.hide()
         self.show_tray_icon()
+        event.ignore()
 
     def show_tray_icon(self):
         # 存在底层 bug，多次关闭窗口，界面和托盘图标同时隐藏，暂时通过每次重新创建图标解决
         self.create_tray_icon()
         self.tray_icon.show()
-        icon = QtWidgets.QSystemTrayIcon.MessageIcon(QtWidgets.QSystemTrayIcon.MessageIcon.Information)
+        icon = QtWidgets.QSystemTrayIcon.MessageIcon(
+            QtWidgets.QSystemTrayIcon.MessageIcon.Information)
         self.tray_icon.showMessage(
             '备份助手提示',  # 标题
-            '工具将继续在系统托盘中运行，\n要退出本工具，\n请在系统托盘的右键菜单中选择"退出"',  # 信息
+            '工具将继续在系统托盘中运行，要退出本工具，\n请在系统托盘的右键菜单中选择"退出"',  # 信息
             icon,  # 图标
             1 * 1000)  # 信息显示持续时间
 
@@ -118,8 +119,5 @@ class MainDialog(QDialog, Ui_Maindlg):
     def show_message(self):
         # 显示气球信息
         icon = QtWidgets.QSystemTrayIcon.MessageIcon(QtWidgets.QSystemTrayIcon.MessageIcon.Information)
-        self.tray_icon.showMessage(
-            "提示",  # 标题
-            "对图标点击右键，选择主界面菜单恢复窗口",  # 信息
-            icon,  # 图标
-            3 * 1000)  # 信息显示持续时间
+        self.tray_icon.showMessage("提示", "对图标点击右键，选择主界面菜单恢复窗口",
+                                   icon, 3 * 1000)

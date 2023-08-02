@@ -5,13 +5,13 @@
 @date: 2023年8月1日
 """
 import os
-import threading
 
 from PyQt6.QtCore import QStandardPaths
 from PyQt6.QtWidgets import QWidget, QMessageBox
 
-from backup.common.backup import BackupUtil
-from backup.common.util import is_subdirectory
+from backup.common.logger import logger
+from backup.common.qt_thread import WorkerThread
+from backup.common.util import is_subdirectory, BackupUtil
 from backup.common.widgets import CommonMessageBox
 from backup.core.custom_file_dialog import get_file_or_dir
 from backup.view.path_wgt import Ui_PathWidget
@@ -26,6 +26,7 @@ class PathWidget(QWidget, Ui_PathWidget):
         self.index = index
 
         self.bind_events()
+        self.worker_thread = None
 
     def bind_events(self):
         self.pushButton_choose_source.clicked.connect(self.on_choose_path)
@@ -146,7 +147,15 @@ class PathWidget(QWidget, Ui_PathWidget):
         backup_filter.extend(self.window().config_util.config['global_filters'])
         backup_filter = list(set(backup_filter))
 
-        # 启动线程备份文件，稍后解决多次启动备份线程的问题
-        threading.Thread(target=BackupUtil.backup,
-                         args=(source_path, target_path, backup_filter)
-                         ).start()
+        # 启动线程备份文件
+        self.setEnabled(False)
+
+        # 注意：这里创建实例保存到自身属性中，不可使用局部变量，局部变量会被销毁从而引起异常
+        self.worker_thread = WorkerThread(source_path, target_path, backup_filter)
+        self.worker_thread.set_callback(BackupUtil.backup)
+        self.worker_thread.thread_signal.connect(self.on_backup_thread_signal)
+        self.worker_thread.start()
+
+    def on_backup_thread_signal(self, message):
+        self.setEnabled(True)
+        logger.info(f"message: {message}")
