@@ -1,19 +1,11 @@
 import hashlib
 import os
+import time
 from pathlib import Path
 
 
-class HashUtil:
-    @staticmethod
-    def calculate_md5(text):
-        """
-        计算文本的 md5 哈希值
-        :param text:
-        :return:
-        """
-        md5 = hashlib.md5()
-        md5.update(text.encode('utf-8'))
-        return md5.hexdigest()
+def get_millisecond():
+    return int(time.time() * 1000)
 
 
 def is_subdirectory_py39(parent_dir, child_dir):
@@ -48,3 +40,16 @@ def is_subdirectory(parent_dir, child_dir):
         return common_path == parent_dir
     except ValueError:
         return False
+
+
+class HashUtil:
+    @staticmethod
+    def calculate_md5(text):
+        """
+        计算文本的 md5 哈希值
+        :param text:
+        :return:
+        """
+        md5 = hashlib.md5()
+        md5.update(text.encode('utf-8'))
+        return md5.hexdigest()

@@ -78,7 +78,7 @@ class MainDialog(QDialog, Ui_Maindlg):
         self.show_tray_icon()
 
     def show_tray_icon(self):
-        # 存在底层 bug，多次关闭窗口，界面和托盘图标同时隐藏，暂时通过重新创建图标解决
+        # 存在底层 bug，多次关闭窗口，界面和托盘图标同时隐藏，暂时通过每次重新创建图标解决
         self.create_tray_icon()
         self.tray_icon.show()
         icon = QtWidgets.QSystemTrayIcon.MessageIcon(QtWidgets.QSystemTrayIcon.MessageIcon.Information)

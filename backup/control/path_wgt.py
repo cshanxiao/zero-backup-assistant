@@ -8,10 +8,11 @@ import os
 import threading
 
 from PyQt6.QtCore import QStandardPaths
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QMessageBox
 
 from backup.common.backup import BackupUtil
 from backup.common.util import is_subdirectory
+from backup.common.widgets import CommonMessageBox
 from backup.core.custom_file_dialog import get_file_or_dir
 from backup.view.path_wgt import Ui_PathWidget
 
@@ -72,6 +73,9 @@ class PathWidget(QWidget, Ui_PathWidget):
                 # 重置目标路径
                 target_path = ''
                 self.lineEdit_target_path.setText(target_path)
+
+                icon = QMessageBox.Icon.Warning
+                CommonMessageBox.show_message(self, text="请选择与源文件夹/文件目录不同的目标文件夹/文件", icon=icon)
                 return
 
             self.window().config_util.update_path(data_path, target_path, backup_filter=backup_filter)
@@ -83,11 +87,13 @@ class PathWidget(QWidget, Ui_PathWidget):
                 # 重置目标路径
                 data_path = ''
                 self.lineEdit_target_path.setText(data_path)
+
+                icon = QMessageBox.Icon.Warning
+                CommonMessageBox.show_message(self, text="请选择与源文件夹/文件目录不同的目标文件夹/文件", icon=icon)
                 return
 
-            if not source_path:
-                return
-            self.window().config_util.update_path(source_path, data_path, backup_filter=backup_filter)
+            if source_path:
+                self.window().config_util.update_path(source_path, data_path, backup_filter=backup_filter)
 
     def on_text_changed(self):
         backup_filter = self.textEdit_filter.toPlainText()
