@@ -12,7 +12,7 @@ def show_delayed_message():
     timer = QTimer()
     timer.setSingleShot(True)
     timer.timeout.connect(msg_box.close)
-    timer.start(5000)
+    timer.start(3000)
 
     # 显示对话框，并启动定时器
     msg_box.exec()

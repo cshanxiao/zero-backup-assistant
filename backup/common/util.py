@@ -64,6 +64,15 @@ class BackupUtil:
 
     @staticmethod
     def backup(source_path, target_path, filters=None):
+        """
+        :note: 暂时使用 shutil 库进行数据备份，存在无法知晓备份进度的问题，
+        同时也无法暂停或停止备份，后续考虑重新实现备份功能
+        :param source_path:
+        :param target_path:
+        :param filters:
+        :return:
+        """
+        start_time = time.time()
         source_path = os.path.abspath(source_path)
         target_path = os.path.abspath(target_path)
 
@@ -88,6 +97,9 @@ class BackupUtil:
         except IOError as _err:
             traceback.print_exc()
             raise BackupError("数据备份失败")
+
+        finish_time = time.time()
+        return finish_time - start_time
 
 
 if __name__ == '__main__':

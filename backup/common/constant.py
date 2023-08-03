@@ -3,11 +3,15 @@ from enum import unique, Enum
 from backup.common.util import get_millisecond
 
 
+TIME_FORMAT_S = "%Y-%m-%d %H:%M:%S"
+TIME_FORMAT_MS = "%Y-%m-%d %H:%M:%S.%f"
+
+
 @unique
 class SignalType(Enum):
     # 信号类型
     COMMON = "common"
-    ThreadFinished = "thread finished"
+    ThreadFinished = "thread_finished"
 
 
 class SignalData:
@@ -29,7 +33,8 @@ class SignalData:
         self.timestamp = timestamp or get_millisecond()  # 信号发出时间
 
     def __str__(self):
-        return f"SignalData(signal_uuid={self.signal_uuid}, signal_type={self.signal_type})"
+        return f"SignalData(signal_uuid={self.signal_uuid}, signal_type={self.signal_type}, " \
+               f"data={self.data}, msg={self.msg}, code={self.code}, timestamp={self.timestamp})"
 
 
 @unique

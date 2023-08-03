@@ -5,10 +5,12 @@
 @date: 2023年8月1日
 """
 import os
+from datetime import datetime
 
 from PyQt6.QtCore import QStandardPaths
-from PyQt6.QtWidgets import QWidget, QMessageBox
+from PyQt6.QtWidgets import QWidget, QMessageBox, QPlainTextEdit
 
+from backup.common.constant import TIME_FORMAT_MS
 from backup.common.logger import logger
 from backup.common.qt_thread import WorkerThread
 from backup.common.util import is_subdirectory, BackupUtil
@@ -67,7 +69,7 @@ class PathWidget(QWidget, Ui_PathWidget):
         backup_filter = self.get_backup_filter()
         sender = self.sender()
         if sender == self.pushButton_choose_source:
-            # 选择源
+            # 选择源，待优化，当前存在的问题，选择新的源，未删除之前的备份配置
             self.lineEdit_source_path.setText(data_path)
             target_path = self.lineEdit_target_path.text().strip()
             if target_path and is_subdirectory(data_path, target_path):
@@ -149,6 +151,10 @@ class PathWidget(QWidget, Ui_PathWidget):
 
         # 启动线程备份文件
         self.setEnabled(False)
+        self.append_console_log(f"开始备份...\n"
+                                f"源：{source_path}\n"
+                                f"目标：{target_path}\n"
+                                f"过滤器：{backup_filter}")
 
         # 注意：这里创建实例保存到自身属性中，不可使用局部变量，局部变量会被销毁从而引起异常
         self.worker_thread = WorkerThread(source_path, target_path, backup_filter)
@@ -158,4 +164,16 @@ class PathWidget(QWidget, Ui_PathWidget):
 
     def on_backup_thread_signal(self, message):
         self.setEnabled(True)
+        # 控制台展示备份结果信息
+        args, result = message.data['args'], message.data['result']
+        self.append_console_log(f"备份完成...\n"
+                                f"源：{args[0]}\n"
+                                f"目标：{args[1]}\n"
+                                f"耗时：{'%.2f' % result} 秒")
         logger.info(f"message: {message}")
+
+    def append_console_log(self, text):
+        # 从顶级窗口搜索子组件
+        widget = self.window().findChildren(QPlainTextEdit, 'text_console')[0]
+        widget.appendPlainText(datetime.now().strftime(TIME_FORMAT_MS) + '\n')
+        widget.appendPlainText(text)
