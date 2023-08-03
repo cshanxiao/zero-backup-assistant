@@ -36,12 +36,14 @@ LOGGING_CONFIG = {
                            },
         'rotating': {"class": "logging.handlers.RotatingFileHandler",
                      "filename": os.path.join(LOG_PATH, LOG_FILENAME),
+                     "encoding": "utf-8",
                      "maxBytes": LOG_MAX_BYTES,  # 最大日志体积，单位：字节
                      "backupCount": LOG_BACKUP_COUNT,  # 备份日志文件数量
                      "formatter": "standard"
                      },
         'rotating_detail': {"class": "logging.handlers.RotatingFileHandler",
                             "filename": os.path.join(LOG_PATH, LOG_FILENAME),
+                            "encoding": "utf-8",
                             "maxBytes": LOG_MAX_BYTES,  # 最大日志体积，单位：字节
                             "backupCount": LOG_BACKUP_COUNT,  # 备份日志文件数量
                             "formatter": "detail"
