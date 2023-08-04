@@ -166,14 +166,19 @@ class PathWidget(QWidget, Ui_PathWidget):
         self.setEnabled(True)
         # 控制台展示备份结果信息
         args, result = message.data['args'], message.data['result']
-        self.append_console_log(f"备份完成...\n"
-                                f"源：{args[0]}\n"
-                                f"目标：{args[1]}\n"
-                                f"耗时：{'%.2f' % result} 秒")
+        if result is None:
+            self.append_console_log(f"备份失败...\n"
+                                    f"源：{args[0]}\n"
+                                    f"目标：{args[1]}")
+        else:
+            self.append_console_log(f"备份完成...\n"
+                                    f"源：{args[0]}\n"
+                                    f"目标：{args[1]}\n"
+                                    f"耗时：{'%.2f' % result} 秒")
         logger.info(f"message: {message}")
 
     def append_console_log(self, text):
         # 从顶级窗口搜索子组件
         widget = self.window().findChildren(QPlainTextEdit, 'text_console')[0]
-        widget.appendPlainText(datetime.now().strftime(TIME_FORMAT_MS) + '\n')
+        widget.appendPlainText('\n' + datetime.now().strftime(TIME_FORMAT_MS))
         widget.appendPlainText(text)

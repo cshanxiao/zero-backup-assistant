@@ -42,6 +42,7 @@ class WorkerThread(QThread):
                 try:
                     result = self.callback(*self.args, **self.kwargs)
                 except Exception as err:
+                    result = None
                     logger.error(f"callback excepted, err: {err}")
                 self.callback_times -= 1
             self.sleep(self.callback_interval)
