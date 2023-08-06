@@ -69,7 +69,7 @@ class PathWidget(QWidget, Ui_PathWidget):
         backup_filter = self.get_backup_filter()
         sender = self.sender()
         if sender == self.pushButton_choose_source:
-            # TODO 选择源，待优化，当前存在的问题，选择新的源，未删除之前的备份配置
+            current_source_path = self.lineEdit_source_path.text().strip()
             self.lineEdit_source_path.setText(data_path)
             target_path = self.lineEdit_target_path.text().strip()
             if target_path and is_subdirectory(data_path, target_path):
@@ -78,10 +78,12 @@ class PathWidget(QWidget, Ui_PathWidget):
                 self.lineEdit_target_path.setText(target_path)
 
                 icon = QMessageBox.Icon.Warning
-                CommonMessageBox.show_message(self, text="请选择与源文件夹/文件不同目录的目标文件夹/文件", icon=icon)
+                message = "请选择与源文件夹/文件不同目录的目标文件夹/文件"
+                CommonMessageBox.show_message(self, text=message, icon=icon)
                 return
 
             self.window().config_util.update_path(data_path, target_path, backup_filter=backup_filter)
+            self.window().config_util.remove_path(current_source_path)
         elif sender == self.pushButton_choose_target:
             # 选择目标
             self.lineEdit_target_path.setText(data_path)

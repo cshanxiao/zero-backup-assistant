@@ -41,6 +41,9 @@ class ConfigUtil:
         target_path = target_path.strip()
         backup_filter = backup_filter or []
 
+        if not source_path:
+            return
+
         backup_id = HashUtil.calculate_md5(source_path)
         config = {
             'id': backup_id,
@@ -54,6 +57,9 @@ class ConfigUtil:
     def remove_path(self, source_path):
         # 移除备份路径
         source_path = source_path.strip()
+        if not source_path:
+            return
+
         backup_id = HashUtil.calculate_md5(source_path)
         if backup_id in self.config['backup_paths']:
             self.config['backup_paths'].pop(backup_id)
