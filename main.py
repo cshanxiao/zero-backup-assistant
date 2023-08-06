@@ -25,11 +25,10 @@ def main():
     try:
         app = QApplication(sys.argv)
         # 设置字体
-        font_path = Path(settings.RESOURCE_PATH).joinpath("fonts/SourceCodePro-LightIt.ttf").as_posix()
-        font_id = QFontDatabase.addApplicationFont(font_path)
+        font_path = Path(settings.RESOURCE_PATH) / "fonts/SourceCodePro-LightIt.ttf"
+        font_id = QFontDatabase.addApplicationFont(font_path.as_posix())
         font_families = QFontDatabase.applicationFontFamilies(font_id)
-        font_name = font_families[0]
-        font = QFont(font_name, 12)
+        font = QFont(font_families[0], 12)
         app.setFont(font)
 
         dlg = MainDialog()
